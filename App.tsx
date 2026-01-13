@@ -1,35 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { getExpensesByMonth } from "./services/expense.service";
+import { createExpense } from "./services/expense.service";
+import { recalculateMonthlySummary } from "./domain/monthlySummaries/recalculateMonthlySummary";
+import "./App.css";
+import { useEffect } from "react";
+import { getMonthlySummaries } from "./services/monthlySummaries.service";
 
 function App() {
-  const [count, setCount] = useState(0)
-
+  useEffect(() => {
+    getMonthlySummaries("test-user").then(console.log);
+  }, []);
+  
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <button
+        onClick={() =>
+          createExpense({
+            userId: "test-user",
+            month: "2026-01",
+            name: "Netflix",
+            category: "Servicios",
+            type: "fixed",
+            currency: "USD",
+            amount: 15,
+            taxProfileIds: ["cardUsd", "advanceGain"],
+          })
+        }
+      >
+        Crear gasto USD
+      </button>
+
+      <button
+        onClick={async () => {
+          const expenses = await getExpensesByMonth(
+            "test-user",
+            "2026-01"
+          );
+          console.log(expenses);
+        }}
+      >
+        Leer gastos Enero
+      </button>
+
+      <button
+        onClick={async () => {
+          await recalculateMonthlySummary("test-user", "2026-01");
+          console.log("Summary recalculado");
+        }}
+      >
+        Recalcular Enero
+      </button>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
